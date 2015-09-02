@@ -1,3 +1,4 @@
-public class IntervalCover{
+package intervalCover;
 
+public class IntervalCover {
 }
