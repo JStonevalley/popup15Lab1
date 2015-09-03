@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 
 public class UnionFind {
 
-    private static boolean kattis = true;
+    private static boolean kattis = false;
 
     public static void main(String[] args) {
         Kattio io = null;
@@ -12,7 +12,7 @@ public class UnionFind {
             if (kattis) {
                 io = new Kattio(System.in);
             } else {
-                io = new Kattio(new BufferedInputStream(new FileInputStream("input/knapsack.in")));
+                io = new Kattio(new BufferedInputStream(new FileInputStream("input/UFmillion")));
             }
         }catch(FileNotFoundException e) {
 
@@ -25,6 +25,7 @@ public class UnionFind {
     private void unionFind(Kattio io) {
         int numElements = io.getInt();
         int numOperations = io.getInt();
+        long time = System.currentTimeMillis();
         UFElement[] elements = new UFElement[numElements];
         // Create starting element with rank 0
 //        for (int i = 0; i < numElements; i++) {
@@ -46,6 +47,7 @@ public class UnionFind {
                 union(elements, elementId1, elementId2);
             }
         }
+        System.err.println((System.currentTimeMillis() - time));
     }
 
     private int findRoot(UFElement[] elements, int elementId) {
