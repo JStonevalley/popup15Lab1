@@ -1,7 +1,5 @@
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
+import java.io.*;
+// Jonas Stendahl & Erik Ranby
 public class UnionFind2 {
 
     private static boolean kattis = true;
@@ -9,57 +7,64 @@ public class UnionFind2 {
     private int[] parent;
     private int[] rank;
 
-    public UnionFind2(Kattio io){
+    public UnionFind2(Kattio io) throws IOException {
         int numElements = io.getInt();
         int numOperations = io.getInt();
-
+        long time = System.currentTimeMillis();
         parent = new int[numElements];
+        rank = new int[numElements];
         for (int i = 0; i < numElements; i++) {
             parent[i] = i;
             rank[i] = 1;
         }
+        BufferedWriter log = new BufferedWriter(new OutputStreamWriter(System.out));
         for (int i = 0; i < numOperations; i++) {
             String operation = io.getWord();
             int elementId1 = io.getInt();
             int elementId2 = io.getInt();
             if (operation.equals("?")) {
                 if (find(elementId1, elementId2)) {
-                    System.out.println("yes");
+                    log.write("yes\n");
                 } else {
-                    System.out.println("no");
+                    log.write("no\n");
                 }
             }
             else if (operation.equals("=")) {
                 unite(elementId1, elementId2);
             }
         }
-    }
-    private int root(int i) {
-        while (i != parent[i]) {
-            i = parent[i];
+        if (!kattis) {
+            log.write((System.currentTimeMillis() - time) + "");
         }
-        return i;
+        log.flush();
     }
-    public boolean find(int p, int q){
-        return root(p) == root(q);
-    }
-    public void unite(int p, int q){
-        int i = root(p);
-        int j = root(q);
-        if (rank[i] < rank[j]){
-            parent[i] = j;
-            rank[j] += rank[i];
+    private int root(int n) {
+        while (n != parent[n]) {
+            parent[n] = parent[parent[n]];
+            n = parent[n];
         }
-        parent[i] = j;
+        return n;
+    }
+    public boolean find(int n1, int n2){
+        return root(n1) == root(n2);
+    }
+    public void unite(int n1, int n2){
+        int r1 = root(n1);
+        int r2 = root(n2);
+        if (rank[r1] < rank[r2]){
+            parent[r1] = r2;
+            rank[r2] += rank[r1];
+        }
+        parent[r1] = r2;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Kattio io = null;
         try {
             if (kattis) {
                 io = new Kattio(System.in);
             } else {
-                io = new Kattio(new BufferedInputStream(new FileInputStream("input/knapsack.in")));
+                io = new Kattio(new BufferedInputStream(new FileInputStream("input/UFmillion")));
             }
         }catch(FileNotFoundException e) {
 
