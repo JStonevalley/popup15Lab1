@@ -27,7 +27,7 @@ public class ICSolution {
     }
 
     public boolean isValid(){
-        if (inc.getLow() >= inc.getHigh()){
+        if (inc.getLow() >= inc.getHigh() && !getSi().isEmpty()){
             return true;
         }
         return false;

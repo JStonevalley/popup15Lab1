@@ -3,7 +3,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
-
+//Jonas Stendahl & Erik Ranby
 public class IC {
 
     private final static boolean kattis = true;
@@ -26,6 +26,8 @@ public class IC {
             cases.add(new ICCase(itc, intervals));
         }
         ArrayList<ICSolution> solutions = (new IC()).coverIntervals(cases);
+
+        //Print the solutions or impossible if not solvable
         for (int i = 0; i < solutions.size(); i++) {
             if (!solutions.get(i).isValid()) {
                 System.out.println("impossible");
@@ -39,6 +41,7 @@ public class IC {
         }
     }
 
+    // Try to cover the intervals for each case
     public ArrayList<ICSolution> coverIntervals(ArrayList<ICCase> cases) {
         for (int i = 0; i < cases.size(); i++) {
             Collections.sort(cases.get(i).getIntervals());
@@ -50,22 +53,28 @@ public class IC {
         return solutions;
     }
 
+    // Cover an interval
     public ICSolution coverInterval(ICCase cas) {
         ICSolution solution = new ICSolution(cas.getItc());
         ICInterval best = cas.getIntervals().get(cas.getIntervals().size()-1);
         ICInterval temp;
         int index = 0;
+        // While there are still intervals not tested and the solution is not valid.
         while (!solution.isValid() && !cas.getIntervals().isEmpty()) {
             index = cas.getIntervals().size() - 1;
             boolean changed = false;
+            // Find all intervals that have a lower limit below what is left to cover.
             while (index >= 0 && cas.getIntervals().get(index).getLow() <= solution.getInc().getLow()) {
                 temp = cas.getIntervals().remove(index);
+                //Take the interval with the highest upper limit
                 if (temp.getHigh() >= best.getHigh()) {
                     best = new ICInterval(temp.getLow(), temp.getHigh(), temp.getIndex());
                     changed = true;
                 }
                 index--;
             }
+            // If there were any intervall that had a lower limit below what was needed to cover
+            // the best of the available is added to the solution.
             if (changed) {
                 solution.getSi().add(new ICInterval(best.getLow(), best.getHigh(), best.getIndex()));
                 solution.setInc(new ICInterval(best.getHigh(), solution.getInc().getHigh()));
