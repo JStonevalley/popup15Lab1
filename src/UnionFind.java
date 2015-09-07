@@ -1,28 +1,35 @@
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 
+/**
+ * Created by Erik Ranby and Jonas Stendahl
+ */
 public class UnionFind {
 
-    private static boolean kattis = false;
+    private static boolean kattis = true;
 
     public static void main(String[] args) {
         Kattio io = null;
+        BufferedWriter out = null;
         try {
             if (kattis) {
-                io = new Kattio(System.in);
+                io = new Kattio(System.in, System.out);
+                out = new BufferedWriter(new OutputStreamWriter(System.out));
             } else {
-                io = new Kattio(new BufferedInputStream(new FileInputStream("input/UFmillion")));
+                io = new Kattio(new BufferedInputStream(new FileInputStream("input/UFmillion")), System.out);
+                out = new BufferedWriter(new OutputStreamWriter(System.out));
             }
         }catch(FileNotFoundException e) {
 
         }
-
         UnionFind uf = new UnionFind();
-        uf.unionFind(io);
+        try {
+            uf.unionFind(io, out);
+        } catch (IOException e) {
+
+        }
     }
 
-    private void unionFind(Kattio io) {
+    private void unionFind(Kattio io, BufferedWriter out) throws IOException{
         int numElements = io.getInt();
         int numOperations = io.getInt();
         long time = System.currentTimeMillis();
@@ -38,16 +45,17 @@ public class UnionFind {
             int elementId2 = io.getInt();
             if (operation.equals("?")) {
                 if (findRoot(elements, elementId1) == findRoot(elements, elementId2)) {
-                    System.out.println("yes");
+                    out.write("yes\n");
                 } else {
-                    System.out.println("no");
+                    out.write("no\n");
                 }
             }
             else if (operation.equals("=")) {
                 union(elements, elementId1, elementId2);
             }
         }
-        System.err.println((System.currentTimeMillis() - time));
+        out.flush();
+//        System.err.println((System.currentTimeMillis() - time));
     }
 
     private int findRoot(UFElement[] elements, int elementId) {

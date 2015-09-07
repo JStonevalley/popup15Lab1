@@ -21,7 +21,7 @@ public class UFInputGen {
         int num1;
         int num2;
         for (int i = 0; i < Q; i++) {
-            if (Math.random() < 0.4) {
+            if (Math.random() < 0.7) {
                 op = "=";
             } else {
                 op = "?";
