@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class Knapsack {
 
-    private static boolean kattis = false;
+    private static boolean kattis = true;
 
     public static void main(String[] args) {
         Knapsack k = new Knapsack();
