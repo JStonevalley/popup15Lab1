@@ -3,6 +3,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
+/**
+ * Created by Erik Ranby and Jonas Stendahl.
+ */
 public class Knapsack {
 
     private static boolean kattis = false;
@@ -23,9 +26,7 @@ public class Knapsack {
             int intCapacity = (int)Math.floor(kCase.getCapacity());
             int[] values = kCase.getValues();
             int[] weights = kCase.getWeights();
-            // maxValue[items][capacity]
             int[][] maxValue = new int[kCase.getNumItems()+1][intCapacity+1];
-            // take[item][capacity]
             boolean[][] take = new boolean[kCase.getNumItems()][intCapacity+1];
             // Base case
             for (int j = 0; j < intCapacity; j++) {
