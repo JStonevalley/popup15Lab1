@@ -8,69 +8,83 @@ import java.util.ArrayList;
  */
 public class Knapsack {
 
-    private static boolean kattis = true;
-
+    /**
+     * Main class. Reading the input and looping through the cases.
+     */
     public static void main(String[] args) {
         Knapsack k = new Knapsack();
         ArrayList<KnapsackCase> cases = k.readInput();
-        ArrayList<KnapsackResult> results = k.knapsack(cases);
-        for (KnapsackResult result : results) {
-            result.print();
-        }
-    }
-
-    private ArrayList<KnapsackResult> knapsack(ArrayList<KnapsackCase> cases) {
-        ArrayList<KnapsackResult> results = new ArrayList<>();
-
         for (KnapsackCase kCase : cases) {
-            int intCapacity = (int)Math.floor(kCase.getCapacity());
-            int[] values = kCase.getValues();
-            int[] weights = kCase.getWeights();
-            int[][] maxValue = new int[kCase.getNumItems()+1][intCapacity+1];
-            boolean[][] take = new boolean[kCase.getNumItems()][intCapacity+1];
-            // Base case
-            for (int j = 0; j < intCapacity; j++) {
-                maxValue[0][j] = 0;
+            int[] result = k.knapsack(kCase.getCapacity(), kCase.getValues(), kCase.getWeights());
+            System.out.println(result.length);
+            for (int i : result) {
+                System.out.print(i + " ");
             }
-
-            for (int i = 1; i <= kCase.getNumItems(); i++) {
-                for (int j = 0; j <= intCapacity; j++) {
-                    if (weights[i-1] <= j && maxValue[i-1][j-weights[i-1]] + values[i-1] > maxValue[i-1][j]) {
-                        maxValue[i][j] = maxValue[i-1][j-weights[i-1]] + values[i-1];
-                        take[i-1][j] = true;
-//                        System.err.println("Added item: "+ (i-1));
-                    } else {
-                        maxValue[i][j] = maxValue[i-1][j];
-                        take[i-1][j] = false;
-                    }
-                }
-            }
-            System.err.println("Max value: " + maxValue[kCase.getNumItems()][intCapacity]);
-
-            ArrayList<Integer> resultIndices = new ArrayList<>();
-            int cap = intCapacity;
-            for (int i = kCase.getNumItems()-1; i >= 0; i--) {
-                if (take[i][cap]) {
-                    resultIndices.add(i);
-                    cap = cap - weights[i];
-                }
-            }
-            results.add(new KnapsackResult(resultIndices));
-
         }
-        return results;
     }
 
+    /**
+     * Finds the items which maximizes the value in the knapsack.
+     *
+     * @param capacity The capacity of the Knapsack.
+     * @param values Array with the values of the items.
+     * @param weights Array with the weights of the items.
+     * @return A int array containing the indices of the chosen items.
+     */
+    public int[] knapsack(double capacity, int[] values, int[]weights) {
+        assert values.length == weights.length;
+
+        int numItems = values.length;
+        int intCapacity = (int)Math.floor(capacity);
+        int[][] maxValue = new int[numItems+1][intCapacity+1]; //maxValue[i][j] contains the maximum value of the i first items with a max weights of j.
+        boolean[][] take = new boolean[numItems][intCapacity+1]; //take[i][j] contains true of we have chosen i'th item with a max weight of j.
+
+        // Base case
+        for (int j = 0; j < intCapacity; j++) {
+            maxValue[0][j] = 0;
+        }
+
+        for (int i = 1; i <= numItems; i++) {
+            for (int j = 0; j <= intCapacity; j++) {
+                if (weights[i-1] <= j && maxValue[i-1][j-weights[i-1]] + values[i-1] > maxValue[i-1][j]) {
+                    maxValue[i][j] = maxValue[i-1][j-weights[i-1]] + values[i-1];
+                    take[i-1][j] = true;
+                }
+                else {
+                    maxValue[i][j] = maxValue[i-1][j];
+                    take[i-1][j] = false;
+                }
+            }
+        }
+        System.err.println("Max value: " + maxValue[numItems][intCapacity]);
+
+        // Checking which indices that were chosen and saving these.
+        ArrayList<Integer> resultIndices = new ArrayList<>();
+        int cap = intCapacity;
+        for (int i = numItems-1; i >= 0; i--) {
+            if (take[i][cap]) {
+                resultIndices.add(i);
+                cap = cap - weights[i];
+            }
+        }
+        return resultIndices.stream().mapToInt(i->i).toArray();
+    }
+
+    /**
+     * Reads the input to a list of KnapsackCase.
+     * @return An ArrayList containing the indices of the chosen items.
+     */
     private ArrayList<KnapsackCase> readInput() {
         Kattio io = null;
         try {
+            boolean kattis = true;
             if (kattis) {
                 io = new Kattio(System.in);
             } else {
                 io = new Kattio(new BufferedInputStream(new FileInputStream("input/knapsack.in")));
             }
         }catch(FileNotFoundException e) {
-
+            e.printStackTrace();
         }
         ArrayList<KnapsackCase> cases = new ArrayList<>();
 
