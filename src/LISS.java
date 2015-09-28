@@ -1,46 +1,24 @@
 import java.util.ArrayList;
+import java.util.Collections;
+
 //Jonas Stendahl & Erik Ranby
-public class LISS {
+public class LISS<T extends Comparable<T>> {
     public static void main(String[] args) {
-        LISS liss = new LISS();
-    }
-    public LISS(){
         Kattio io = new Kattio(System.in);
         while(io.hasMoreTokens()) {
             int seqLength = io.getInt();
-            Element[] last = new Element[seqLength + 2];
-            for (int i = 0; i < last.length; i++) {
-                last[i] = new Element(-1, Integer.MAX_VALUE);
+            if (seqLength == 0){
+                System.out.println(0);
+                continue;
             }
-            last[0].value = Integer.MIN_VALUE;
-            Element[] elements = new Element[seqLength];
+            int high = 1;
+            Integer[] elements = new Integer[seqLength];
             int l;
             for (int i = 0; i < seqLength; i++) {
-                Element element = new Element(i, io.getInt());
-                //Find maximum l such that last[l] < element.value
-                l = binarySearch(last, element);
-                if ((last[l + 1].value == Integer.MAX_VALUE || element.value < last[l + 1].value) && element.value != last[l].value) {
-                    last[l + 1].value = element.value;
-                    last[l + 1].index = element.index;
-                    element.previous = last[l].index;
-                    elements[element.index] = element;
-                }
+                elements[i] = io.getInt();
             }
-            // Backtrack solution to find the indices of the longest sequence.
-            int maxIndex = 0;
-            for (int i = 1; i < last.length; i++) {
-                if (last[i].value == Integer.MAX_VALUE) {
-                    maxIndex = last[i - 1].index;
-                    break;
-                }
-            }
-            ArrayList<Integer> indices = new ArrayList<>();
-            Element temp = elements[maxIndex];
-            indices.add(temp.index);
-            while (temp.previous >= 0) {
-                temp = elements[temp.previous];
-                indices.add(temp.index);
-            }
+            LISS<Integer> liss = new LISS<Integer>();
+            ArrayList<Integer> indices = liss.getLongestIncreasingSubSequence(elements);
             StringBuilder sb = new StringBuilder();
             for (int i = indices.size() - 1; i >= 0; i--) {
                 sb.append(indices.get(i));
@@ -52,48 +30,73 @@ public class LISS {
     }
 
     /**
-     * A binary search that searches for an interval between values in which the key
-     * fits where: key < interval.high && key >= interval.low returns interval.low.
-     * @param array array to suggest a position in
-     * @param key the key which need suggested position
-     * @return the suggested index of the key.
+     * @param elems the elements to find sub sequences in
+     * @return th indices of the longest increasing sub sequence backwards
      */
-    private int binarySearch(Element[] array, Element key){
-        if(key.value > array[array.length-1].value || key.value < array[0].value)
-            return -1;
-        if (array.length < 10){
-            int index = -1;
-            for (int i = 0; i < array.length; i++) {
-                if (array[i+1].value > key.value && array[i].value <= key.value){
-                    return i;
+    public ArrayList<Integer> getLongestIncreasingSubSequence(T[] elems) {
+
+        Element<T>[] elements = new Element[elems.length];
+        for (int i = 0; i < elems.length; i++) {
+            elements[i] = new Element<T>(i, elems[i]);
+        }
+
+        ArrayList<Element<T>> last = new ArrayList<Element<T>>(elements.length + 2);
+        last.add(new Element<T>(-1, null));
+
+        for (int i = 0; i < elements.length; i++) {
+            //Find maximum l such that last[l] < element.value
+            int l;
+            l = Collections.binarySearch(last, elements[i]);
+            if (l < 0){
+                l = Math.abs(l + 1);
+                //The element is larger than anything we have seen
+                if (l == last.size()){
+                    last.add(new Element<T>(elements[i].index, elements[i].value));
+                    elements[i].previous = last.get(l-1).index;
                 }
+                //The element is larger than [l-1] and smaller than last[l] replace last[l]
+                else if (l < last.size())
+                    last.get(l).value = elements[i].value;
+                    last.get(l).index = elements[i].index;
+                    elements[i].previous = last.get(l-1).index;
             }
         }
-        int low = 0;
-        int high = array.length-1;
-        int mid = low;
-        while (low <= high){
-            mid = low + (high-low)/2;
-            if(key.value < array[mid+1].value && key.value >= array[mid].value){
-                return mid;
-            }
-            else if (key.value < array[mid+1].value){
-                high = mid;
-            }
-            else{
-                low = mid + 1;
-            }
+        // Backtrack solution to find the indices of the longest sequence.
+        int maxIndex = last.get(last.size()-1).index;
+        ArrayList<Integer> indices = new ArrayList<>();
+        Element temp = elements[maxIndex];
+        indices.add(temp.index);
+        while (temp.previous > -1) {
+            temp = elements[temp.previous];
+            indices.add(temp.index);
         }
-        return -1;
+        return indices;
     }
-    private class Element{
+
+    /**
+     * A container for values for which we would like to find a subsequence.
+     * Keeps index and previous element-index in order to be able to backtrack.
+     * @param <T> Camparable type.
+     */
+    private class Element<T extends Comparable<T>> implements Comparable<Element<T>>{
         public int index;
-        public int value;
+        public T value;
         public int previous = -1;
 
-        public Element(int index, int value) {
+        public Element(int index, T value) {
             this.index = index;
             this.value = value;
+        }
+
+        @Override
+        public int compareTo(Element<T> o) {
+            if (o.value == null && this.value == null)
+                return 0;
+            if (o.value == null)
+                return 1;
+            if (this.value == null)
+                return -1;
+            return this.value.compareTo(o.value);
         }
     }
 }
